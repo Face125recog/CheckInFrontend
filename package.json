@@ -18,6 +18,7 @@
     "vuetify": "^3.4.8"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.16.0",
     "@vitejs/plugin-vue": "^4.5.2",
     "eslint": "^8.56.0",
     "eslint-plugin-vue": "^9.19.2",
