@@ -23,20 +23,19 @@ onMounted(() => {
   face_detect.value.init().then(() => { modelInit.value = true })
 })
 
-const checkIn = () => {
+const checkIn = async () => {
   const context = canv.value!.getContext("2d")
   canv.value!.width = 200
   canv.value!.height = 150
   context!.drawImage(video.value!, 0, 0, 200, 150)
-  face_detect.value.detectFace(canv.value!, context!)
-    .then((area) => {
-      if (area)
-        crop(canv.value!, canv_out.value!, area)
-      else
-        alert("No Face detect")
-    })
-  // const url = canv.value!.toDataURL("image/png")
-  // img.value!.src = url
+  const face = await face_detect.value.detectFace(canv.value!, context!)
+  if (face) {
+    const cropImg = await crop(canv.value!, face)
+    // const resizeImg = await resize(cropImg,{width:100,height:100})
+    img.value!.src = URL.createObjectURL(cropImg)
+  }
+  else
+    alert("No Face detect")
 
 }
 
