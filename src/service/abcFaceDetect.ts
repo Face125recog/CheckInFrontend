@@ -15,6 +15,18 @@ export interface FaceOwner {
 }
 
 export interface FaceRegister<T> {
+    /**
+     * Load Next available face
+     *
+     * 1. using provided detector find face
+     * 2. using image-process function crop the face
+     * 3. return the croped face
+     *
+     * Note: if no face found, try fetch face until detect face
+     *
+     * @param T provided context to determine the env
+     * @return Blob the binary data content the crop face
+     */
     nextFace: (detector: AbcFaceDetect, context: T) => Promise<Blob>;
 }
 

@@ -4,9 +4,13 @@ import {AxiosRequest} from "../../api/impls/axiosRequest.ts";
 import {blobToBase64} from "../../imageProcess/fetchFromElement.ts";
 
 export class FrontFaceDetectService extends AbcFaceDetect {
-    recommendSize?: Size = null
+    recommendSize?: Size = undefined
     faceDetector: FrontFaceDetect = new FrontFaceDetect()
     requestClient: AxiosRequest = new AxiosRequest()
+
+    async init() {
+        await this.faceDetector.init()
+    }
 
     async addingFace<T>(register: FaceRegister<T>, context: T, times: number, authorize: string): Promise<void> {
         // 1. fetch a context from backend, to keep state
