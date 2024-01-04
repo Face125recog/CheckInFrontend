@@ -15,10 +15,17 @@ export interface FaceOwner {
     identity: number
 }
 
+export interface FaceRegister<T>{
+    nextFace:(detector:AbcFaceDetect,context:T)=>Promise<Blob>;
+}
+
 export abstract class AbcFaceDetect {
     abstract recommandSize?: Size
 
     abstract feceDetect(inputImg: Blob | HTMLImageElement, miniSize?: Size): Promise<FaceLocal>
 
     abstract faceMatch(inputImg: Blob, miniConfidence: number): Promise<FaceOwner>
+
+    abstract addingFace<T>(register:FaceRegister<T>,context:T,times:number):Promise<void>
+        
 }
