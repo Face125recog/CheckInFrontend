@@ -1,10 +1,10 @@
 import { HttpRequest, Method, Payload } from "../httpRequest";
 
-class MockRequest extends HttpRequest {
+export class MockRequest extends HttpRequest {
     responseList: Record<string, object[]>;
     respIdx: Record<string, number> = {};
 
-    send<T>(_method: Method, path: string, _query?: Record<string, string> | undefined, _payload?: object | Blob | undefined): Promise<Payload<T>> {
+    send<T>(_: Method, path: string): Promise<Payload<T>> {
         const resp = this.responseList[path][this.respIdx[path]]
         this.respIdx[path] += 1;
 
