@@ -8,18 +8,9 @@ dependencies:
   '@typescript-eslint/parser':
     specifier: ^6.16.0
     version: 6.16.0(eslint@8.56.0)(typescript@5.2.2)
-  opencv:
-    specifier: link:D:/font-end-project/opencv-ts/
-    version: link:../opencv-ts
   opencv-ts:
     specifier: ^1.3.6
     version: 1.3.6
-  opencv.js:
-    specifier: ^1.2.1
-    version: 1.2.1
-  opencv4js:
-    specifier: ^3.4.3
-    version: 3.4.3
   vite-plugin-vuetify:
     specifier: ^2.0.1
     version: 2.0.1(vite@5.0.8)(vue@3.3.11)(vuetify@3.4.8)
@@ -1264,14 +1255,6 @@ packages:
     resolution: {integrity: sha512-8iG+ujpzsvc5W7vP0WH0TFUOODZFulp7SBzy2Av2xXmHrHVKw7HWKyutLxmstAkNa7nD6BgnDrEVxTsI/mDkeQ==}
     dependencies:
       typescript: 4.9.5
-    dev: false
-
-  /opencv.js@1.2.1:
-    resolution: {integrity: sha512-+ji5Pk3eyz+RRSeZr2kLZNJpjsKoGyPJOjFWng7+Cuq9ylHakBqJMxDGlBW1+qdju3k8DadWOiHJ6JaF28UpKA==}
-    dev: false
-
-  /opencv4js@3.4.3:
-    resolution: {integrity: sha512-vdvYGRfbQCSe/WevgXpDLPhJN0PwNmrVLIdUxAXvbWRAMmRaNJXDHlSkHUzAT7qJOk2ukoXSv3G2X7u8X9ktGQ==}
     dev: false
 
   /optionator@0.9.3:
