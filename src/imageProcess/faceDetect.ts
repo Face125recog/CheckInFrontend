@@ -1,5 +1,6 @@
-import { TinyFaceDetector, TinyFaceDetectorOptions, detectSingleFace, nets } from "@vladmandic/face-api"
-import { Area } from "./cropAndResize"
+import {detectSingleFace, nets, TinyFaceDetector, TinyFaceDetectorOptions} from "@vladmandic/face-api"
+import {Area} from "./cropAndResize"
+
 export class FrontFaceDetect {
     detector: TinyFaceDetector
     path: string
@@ -15,18 +16,20 @@ export class FrontFaceDetect {
 
     }
 
-    async detectFace(input: HTMLCanvasElement, context: CanvasRenderingContext2D): Promise<Area | null> {
+    async detectFace(input: HTMLCanvasElement, context?: CanvasRenderingContext2D): Promise<Area | null> {
         const face = await detectSingleFace(input, new TinyFaceDetectorOptions())
         console.log(face);
 
         if (face) {
-            const x = face.box.left
-            const y = face.box.top
-            const h = face.box.height
-            const w = face.box.width
-            context.beginPath()
-            context.rect(x, y, w, h)
-            context.stroke()
+            if (context) {
+                const x = face.box.left
+                const y = face.box.top
+                const h = face.box.height
+                const w = face.box.width
+                context.beginPath()
+                context.rect(x, y, w, h)
+                context.stroke()
+            }
             return face.box
         } else {
             return null

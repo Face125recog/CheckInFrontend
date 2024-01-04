@@ -1,5 +1,9 @@
 export type Method = "GET" | "POST" | "HEAD"
-export type ContentType = "application/json" | "multipart/form-data" | "application/x-www-form-urlencoded"
+export type ContentType =
+    "application/json"
+    | "multipart/form-data"
+    | "application/x-www-form-urlencoded"
+    | "text/plain"
 
 export interface Payload<T> {
     data?: T,
