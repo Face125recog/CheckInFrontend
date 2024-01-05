@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import {useRouter} from "vue-router";
 import AdminLogin from "./AdminLogin.vue";
+import {ref} from "vue";
 
+const drawer = ref(false)
 const property = defineProps<{
   pages: { name: string, path: string }[],
 }>()
