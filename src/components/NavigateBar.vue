@@ -44,6 +44,7 @@ const onSwitchTraget = ({id}) => {
   >
     <v-list
       :items="property.pages"
+      class="text-left"
       item-title="name"
       item-value="path"
       @click:select="onSwitchTraget"
