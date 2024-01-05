@@ -51,13 +51,15 @@ onMounted(() => {
 
 <template>
   <v-card
-    class="elevation-3 pa-3 rounded-lg"
+    class=" pa-3 rounded-lg"
+
     title="人脸采集"
   >
-    <v-card-text>
+    <v-card-text class="d-flex justify-center">
       <video
         ref="video"
-        class="d-flex justify-center rounded-lg"
+        class=" rounded-lg"
+        style="align-self: center"
       />
     </v-card-text>
     <v-card-actions class="d-flex justify-end">
