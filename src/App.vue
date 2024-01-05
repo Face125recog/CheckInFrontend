@@ -88,7 +88,5 @@ import NavigateBar from "./components/NavigateBar.vue";
 </template>
 
 <style scoped>
-.app {
-  height: 100%;
-}
+
 </style>

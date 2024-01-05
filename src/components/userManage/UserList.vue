@@ -45,7 +45,10 @@ const page = ref(1)
             </tr>
           </thead>
           <tbody>
-            <tr v-for="d in data">
+            <tr
+              v-for="d in data"
+              :key="d.id"
+            >
               <td>{{ d.name }}</td>
               <td>{{ d.id }}</td>
               <td>

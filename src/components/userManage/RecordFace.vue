@@ -89,7 +89,9 @@ const onPickFace = (face: Blob) => {
         <img
           ref="faceImg"
           :hidden="!onCollect"
+          alt=""
           class="ma-2 rounded-sm"
+          src=""
         >
       </v-card-text>
     </v-card>
