@@ -19,12 +19,14 @@
     </face-dect>
   </v-container>
   <v-dialog
+
     v-model="showCheckIn"
-    class="d-flex align-center"
+
     location="center"
   >
     <v-card
-      class="w-25 d-flex align-center"
+      class="w-25 d-flex align-center "
+      style="align-self: center"
       title="确认签到"
     >
       <v-card-text>
