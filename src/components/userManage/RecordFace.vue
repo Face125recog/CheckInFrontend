@@ -8,6 +8,12 @@ const faceDetect = new FrontFaceDetectService()
 const modelReady = ref(false)
 const remainTimes = ref(200)
 const startCollecting = ref(false)
+const registerStep = ref<VStepper | null>()
+const userName = ref("")
+const userId = ref<number>(0)
+const collectDone = ref(false)
+
+const userInfoFilled = computed(() => userName.value.length > 0 && userId.value > 0)
 const onCollect = computed(() => {
   return startCollecting.value && remainTimes.value > 0
 })
@@ -28,6 +34,7 @@ const activateFaceDetect = (activate: () => void) => {
   } else {
     startCollecting.value = false
     remainTimes.value = 200
+    collectDone.value = true
   }
 
 }
@@ -41,6 +48,7 @@ const onPickFace = (face: Blob) => {
 
 <template>
   <v-dialog
+    v-model="showDialog"
     class=""
     transition="dialog-top-transition"
   >
@@ -58,15 +66,36 @@ const onPickFace = (face: Blob) => {
     >
       <v-card-text class="pa-2">
         <v-stepper
+          ref="registerStep"
           :items="[`登记信息`,`录入人脸`]"
           elevation="0"
+          hide-actions
         >
           <template #item.1>
             <v-card>
               <v-card-text>
-                <v-text-field label="Name" />
-                <v-text-field label="ID" />
+                <v-text-field
+                  v-model="userName"
+                  label="Name"
+                  prepend-icon="mdi mdi-card-account-details"
+                  type="text"
+                />
+                <v-text-field
+                  v-model="userId"
+                  label="ID"
+                  prepend-icon="mdi mdi-account"
+                  type="number"
+                />
               </v-card-text>
+              <v-card-actions class="d-flex justify-end">
+                <v-btn
+                  :disabled="!userInfoFilled"
+
+                  @click="registerStep?.next()"
+                >
+                  Next
+                </v-btn>
+              </v-card-actions>
             </v-card>
           </template>
           <template #item.2>
@@ -78,8 +107,17 @@ const onPickFace = (face: Blob) => {
               class="elevation-0 ma-2"
             >
               <template #detect-activator="{activate}">
-                <v-btn @click="startCollecting=true;activateFaceDetect(activate)">
+                <v-btn
+                  v-if="!collectDone"
+                  @click="startCollecting=true;activateFaceDetect(activate)"
+                >
                   {{ onCollect ? `采集中 ${remainTimes + 1}/200` : '开始采集' }}
+                </v-btn>
+                <v-btn
+                  v-else
+                  @click="showDialog = false"
+                >
+                  Done
                 </v-btn>
               </template>
             </face-dect>
