@@ -5,7 +5,13 @@ import RecordFace from "./RecordFace.vue";
 
 const data = ref<{ name: string, id: number }[]>([
   {name: "AAA", id: 1},
-  {name: "BBB", id: 2}
+  {name: "BBB", id: 2},
+  {name: "AAA", id: 3},
+  {name: "BBB", id: 4},
+  {name: "AAA", id: 5},
+  {name: "BBB", id: 6},
+  {name: "AAA", id: 7},
+  {name: "BBB", id: 8},
 ])
 const page = ref(1)
 
