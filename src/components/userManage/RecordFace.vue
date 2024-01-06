@@ -75,7 +75,7 @@ const onPickFace = (face: Blob) => {
           elevation="0"
           hide-actions
         >
-          <template #item.1>
+          <template #[`item.1`]>
             <v-card>
               <v-card-text>
                 <v-text-field
@@ -94,7 +94,7 @@ const onPickFace = (face: Blob) => {
               <v-card-actions class="d-flex justify-end">
                 <v-btn
                   :disabled="!userInfoFilled"
-
+                  variant="elevated"
                   @click="registerStep?.next()"
                 >
                   Next
@@ -102,9 +102,10 @@ const onPickFace = (face: Blob) => {
               </v-card-actions>
             </v-card>
           </template>
-          <template #item.2>
+          <template #[`item.2`]>
             <face-dect
-              :face-detect="faceDetect"
+              v-if="modelReady"
+              :face-detect="faceDetect!"
               :face-picker="onPickFace"
               :height="200"
               :width="300"
@@ -113,18 +114,25 @@ const onPickFace = (face: Blob) => {
               <template #detect-activator="{activate}">
                 <v-btn
                   v-if="!collectDone"
+                  variant="elevated"
                   @click="startCollecting=true;activateFaceDetect(activate)"
                 >
                   {{ onCollect ? `采集中 ${remainTimes + 1}/200` : '开始采集' }}
                 </v-btn>
                 <v-btn
                   v-else
+                  variant="elevated"
                   @click="showDialog = false"
                 >
                   Done
                 </v-btn>
               </template>
             </face-dect>
+            <v-progress-circular
+              v-else
+              color="primary"
+              indeterminate
+            />
           </template>
         </v-stepper>
 
