@@ -3,8 +3,11 @@
 import FaceDect from "../FaceDect.vue";
 import {FrontFaceDetectService} from "../../service/impls/frontfaceDetect.ts";
 import {computed, onMounted, ref} from "vue";
+import {VStepper} from "vuetify/components";
+import {AbcFaceDetect} from "../../service/abcFaceDetect.ts";
 
-const faceDetect = new FrontFaceDetectService()
+const showDialog = ref(false)
+const faceDetect = ref<AbcFaceDetect | null>()
 const modelReady = ref(false)
 const remainTimes = ref(200)
 const startCollecting = ref(false)
@@ -20,7 +23,8 @@ const onCollect = computed(() => {
 
 const faceImg = ref()
 onMounted(() => {
-  faceDetect.init().then(() => {
+  FrontFaceDetectService.getDetector().then((detector) => {
+    faceDetect.value = detector
     modelReady.value = true
   })
 })
