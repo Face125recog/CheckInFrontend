@@ -2,7 +2,7 @@
   <v-container class="d-flex justify-center">
     <face-dect
 
-      :face-detect="new FrontFaceDetectService()"
+      :face-detect="detectService!"
       :face-picker="onDetectFace"
       :height="200"
       :width="300"
@@ -48,8 +48,9 @@
 import FaceDect from "../components/FaceDect.vue";
 import {FrontFaceDetectService} from "../service/impls/frontfaceDetect.ts";
 import {onMounted, ref} from "vue";
+import {AbcFaceDetect} from "../service/abcFaceDetect.ts";
 
-const detectService = new FrontFaceDetectService()
+const detectService = ref<AbcFaceDetect | null>()
 const modelReady = ref(false)
 const imageRef = ref()
 const showCheckIn = ref(false)
@@ -64,7 +65,8 @@ const onDetectFace = (face: Blob) => {
 }
 
 onMounted(() => {
-  detectService.init().then(() => {
+  FrontFaceDetectService.getDetector().then((detector) => {
+    detectService.value = detector
     modelReady.value = true
   })
 })
