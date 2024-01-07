@@ -1,10 +1,20 @@
-import axios, { AxiosHeaders, AxiosInstance } from "axios"
-import { ContentType, HttpRequest, Method, Payload } from "../httpRequest"
+import axios, {AxiosHeaders, AxiosInstance} from "axios"
+import {AbcHttpClient, Payload, SendPayload} from "../abcHttpClient.ts"
 
-const BASE_URL = "http://192.168.1.121"
+const BASE_URL = "http://127.0.0.1:4523/m1/3863270-0-default"
 
-export class AxiosRequest extends HttpRequest {
-    async send<T>(method: Method, path: string, contentType: ContentType, query?: Record<string, string> | undefined, payload?: object | Blob | undefined, authorize?: string): Promise<Payload<T>> {
+export class AxiosRequest extends AbcHttpClient {
+    instance: AxiosInstance
+
+    constructor() {
+        super()
+        this.instance = axios.create({
+            baseURL: BASE_URL,
+            timeout: 1500,
+        })
+    }
+
+    async send<T>({contentType, authorize, payload, query, method, path}: SendPayload): Promise<Payload<T>> {
         const headers = new AxiosHeaders()
 
         headers.setContentType(contentType)
@@ -27,14 +37,5 @@ export class AxiosRequest extends HttpRequest {
         } else {
             throw new Error(`Request Failure: ${resp.status} ${resp.statusText} | ${resp.data.errty} ${resp.data.errmsg}`)
         }
-    }
-    instance: AxiosInstance
-
-    constructor() {
-        super()
-        this.instance = axios.create({
-            baseURL: BASE_URL,
-            timeout: 1500,
-        })
     }
 }
