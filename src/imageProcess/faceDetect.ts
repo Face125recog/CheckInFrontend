@@ -12,10 +12,12 @@ export class FrontFaceDetect {
     }
 
     async init() {
-        if (this.initState) {
+        if (!this.initState) {
             await nets.tinyFaceDetector.loadFromUri(this.path)
             console.log("loading down");
             this.initState = true
+        } else {
+            console.log("model had been loaded")
         }
     }
 

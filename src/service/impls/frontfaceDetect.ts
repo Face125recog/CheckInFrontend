@@ -35,6 +35,7 @@ export class FrontFaceDetectService extends AbcFaceDetect {
         const faceList: string[] = []
 
         for (let i = 0; i < times; i++) {
+            console.log(`collect face ${i + 1} / ${times}`)
             //2. 进行 times 次带人脸的采集
             const face = await register.nextFace(this, context)
             const base64Face = await blobToBase64(face)
