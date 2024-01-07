@@ -3,6 +3,7 @@ import {Area} from "./cropAndResize"
 
 export class FrontFaceDetect {
     detector: TinyFaceDetector
+    initState: boolean = false
     path: string
 
     constructor(path: string = "/models") {
@@ -11,9 +12,11 @@ export class FrontFaceDetect {
     }
 
     async init() {
-        await nets.tinyFaceDetector.loadFromUri(this.path)
-        console.log("loading down");
-
+        if (this.initState) {
+            await nets.tinyFaceDetector.loadFromUri(this.path)
+            console.log("loading down");
+            this.initState = true
+        }
     }
 
     async detectFace(input: HTMLCanvasElement, context?: CanvasRenderingContext2D): Promise<Area | null> {

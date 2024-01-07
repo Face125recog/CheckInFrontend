@@ -1,31 +1,34 @@
 import {AbcFaceDetect, FaceLocal, FaceOwner, FaceRegister, Size} from "../abcFaceDetect.ts";
-import {FrontFaceDetect} from "../../imageProcess/faceDetect.ts";
-import {AxiosRequest} from "../../api/impls/axiosRequest.ts";
 import {blobToBase64} from "../../imageProcess/fetchFromElement.ts";
 import {addingFace} from "../../api/callApi/addingFaceApi.ts";
 import {userCheckIn} from "../../api/callApi/checkIn.ts";
+import {AbcHttpClient} from "../../api/abcHttpClient.ts";
+import {FrontFaceDetect} from "../../imageProcess/faceDetect.ts";
+import {AxiosRequest} from "../../api/impls/axiosRequest.ts";
 
 export class FrontFaceDetectService extends AbcFaceDetect {
-    private static instance: FrontFaceDetectService = new FrontFaceDetectService()
+    private static instance?: FrontFaceDetectService
     recommendSize?: Size = undefined
     faceDetector: FrontFaceDetect = new FrontFaceDetect()
-    requestClient: AxiosRequest = new AxiosRequest()
-    inited: boolean = false
+    requestClient: AbcHttpClient
 
-    private constructor() {
+    private constructor(client: AbcHttpClient) {
         super();
+        this.requestClient = client
     }
 
-    public static async getDetector() {
-        if (!FrontFaceDetectService.instance.inited) {
+    public static async getInstance(client: AbcHttpClient = AxiosRequest.getInstance()) {
+        if (FrontFaceDetectService.instance)
+            return FrontFaceDetectService.instance
+        else {
+            FrontFaceDetectService.instance = new FrontFaceDetectService(client)
             await FrontFaceDetectService.instance.init()
+            return FrontFaceDetectService.instance
         }
-        return FrontFaceDetectService.instance
     }
 
     async init() {
         await this.faceDetector.init()
-        this.inited = true
     }
 
     async addingFace<T>(register: FaceRegister<T>, context: T, times: number, authorize: string, owner: FaceOwner): Promise<void> {
@@ -52,7 +55,7 @@ export class FrontFaceDetectService extends AbcFaceDetect {
         const face = await this.faceDetector.detectFace(inputImg)
         if (!face) return null
 
-        if (miniSize && face.width < miniSize?.height || face.height < miniSize?.height) {
+        if (miniSize && (face.width < miniSize?.height || face.height < miniSize?.height)) {
             return null
         }
         return {
