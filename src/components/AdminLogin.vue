@@ -1,25 +1,26 @@
 <script lang="ts" setup>
 import {computed, ref} from "vue";
+import {AdminLogin} from "../api/callApi/admin.ts";
 
-const props = defineProps<
-    { adminLoginDone: (token: string) => void; }
+const property = defineProps<
+    { fetchLoginInfo: (login: AdminLogin) => Promise<void>, modelValue: boolean }
 >()
 
-const showDialog = ref(false)
 const userName = ref("")
 const userPwd = ref("")
 const waitingLogin = ref(false)
-
+const showDialog = ref(property.modelValue)
 const loginAble = computed(() => {
   return userName.value.length != 0 && userPwd.value.length != 0
 })
 const adminLogin = () => {
   waitingLogin.value = true;
-  setTimeout(() => {
-    waitingLogin.value = false;
+  property.fetchLoginInfo({name: userName.value, password: userPwd.value}).then(() => {
+    userPwd.value = ""
+    userName.value = ""
     showDialog.value = false
-    props.adminLoginDone("ABC")
-  }, 1000)
+    waitingLogin.value = false
+  })
 }
 
 </script>
@@ -27,6 +28,7 @@ const adminLogin = () => {
 <template>
   <v-dialog
     v-model="showDialog"
+    :model-value="property.modelValue"
     class="w-33"
     transition="dialog-top-transition"
   >
@@ -64,7 +66,7 @@ const adminLogin = () => {
           >
             Login
           </v-btn>
-          <v-btn @click="isActive .value=false">
+          <v-btn @click="showDialog=false">
             Cancel
           </v-btn>
         </v-card-actions>
