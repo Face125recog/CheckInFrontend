@@ -37,6 +37,6 @@ export abstract class AbcFaceDetect {
 
     abstract faceMatch(inputImg: Blob, miniConfidence: number): Promise<FaceOwner>
 
-    abstract addingFace<T>(register: FaceRegister<T>, context: T, times: number, authorize: string): Promise<void>
+    abstract addingFace<T>(register: FaceRegister<T>, context: T, times: number, authorize: string, user: FaceOwner): Promise<void>
 
 }
