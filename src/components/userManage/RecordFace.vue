@@ -6,6 +6,8 @@ import {computed, onMounted, ref} from "vue";
 import {VStepper} from "vuetify/components";
 import {AbcFaceDetect} from "../../service/abcFaceDetect.ts";
 
+const {requireAuthorize} = defineProps<{ requireAuthorize: () => Promise<string> }>()
+
 const showDialog = ref(false)
 const faceDetect = ref<AbcFaceDetect | null>()
 const modelReady = ref(false)
@@ -21,30 +23,55 @@ const onCollect = computed(() => {
   return startCollecting.value && remainTimes.value > 0
 })
 
+const pickedFace = ref<Blob | null>(null)
+
 const faceImg = ref()
 onMounted(() => {
-  FrontFaceDetectService.getDetector().then((detector) => {
+  FrontFaceDetectService.getInstance().then((detector) => {
     faceDetect.value = detector
     modelReady.value = true
   })
 })
 const activateFaceDetect = (activate: () => void) => {
+  if (faceDetect.value) {
+    requireAuthorize().then((token) => {
 
-  activate()
-  if (onCollect.value) {
-    setTimeout(() => {
-      activateFaceDetect(activate)
-    }, 20)
-  } else {
-    startCollecting.value = false
-    remainTimes.value = 200
-    collectDone.value = true
+      faceDetect.value?.addingFace({
+        nextFace: async (_, context) => {
+          context()
+          return await getFace(context)
+        }
+      }, activate, 200, token, {name: userName.value, identity: userId.value})
+          .finally(() => {
+            collectDone.value = true
+          })
+    })
   }
-
 }
+
+const getFace = (activator: () => void) => {
+  return new Promise<Blob>((resolve) => {
+        const inner = () => {
+          if (pickedFace.value) {
+            const payload = pickedFace.value;
+            pickedFace.value = null
+            remainTimes.value -= 1
+            resolve(payload)
+          } else {
+            activator()
+            setTimeout(() => {
+              inner()
+            }, 20)
+          }
+        }
+        inner()
+      }
+  )
+}
+
 const onPickFace = (face: Blob) => {
+  pickedFace.value = face
   faceImg.value.src = URL.createObjectURL(face)
-  remainTimes.value -= 1
 }
 
 

@@ -1,28 +1,57 @@
 <script lang="ts" setup>
 
-import {ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import RecordFace from "./RecordFace.vue";
+import {AbcUserManager} from "../../service/abcUserManager.ts";
 
-const data = ref<{ name: string, id: number }[]>([
-  {name: "AAA", id: 1},
-  {name: "BBB", id: 2},
-  {name: "AAA", id: 3},
-  {name: "BBB", id: 4},
-  {name: "AAA", id: 5},
-  {name: "BBB", id: 6},
-  {name: "AAA", id: 7},
-  {name: "BBB", id: 8},
-])
+const props = defineProps<{ manager: AbcUserManager, requireAuthorize: () => Promise<string> }>()
+
+const data = ref<{ name: string, identity: number }[]>([])
+const pageNum = ref()
+const pageSize = 8
 const page = ref(1)
+
+const ready = computed(() => {
+  return data.value.length > 0 && pageNum.value != 0
+})
+const loadUser = async () => {
+  data.value = await props.manager.allUser(await props.requireAuthorize(), pageSize, page.value)
+}
+
+const removeUser = async (id: number) => {
+  props.manager.removeUser(id, await props.requireAuthorize())
+      .then(() => {
+        loadUser()
+      })
+}
+
+watch(page, () => {
+  data.value = []
+  loadUser()
+})
+
+onMounted(() => {
+  props.requireAuthorize().then((token) => {
+    props.manager.userNumber(token).then((num) => {
+      pageNum.value = Math.ceil(num / pageSize)
+    })
+    loadUser()
+  })
+})
+
 
 </script>
 <template>
   <v-container class="d-flex justify-center align-center">
     <v-card
+      :loading="!ready"
       class="w-75 pa-3"
     >
       <v-card-title>
-        <record-face class="">
+        <record-face
+          :require-authorize="requireAuthorize"
+          class=""
+        >
           <template #activator="{active}">
             <v-btn
               class="d-flex justify-start"
@@ -53,12 +82,16 @@ const page = ref(1)
           <tbody>
             <tr
               v-for="d in data"
-              :key="d.id"
+              :key="d.identity"
             >
               <td>{{ d.name }}</td>
-              <td>{{ d.id }}</td>
+              <td>{{ d.identity }}</td>
               <td>
-                <v-btn class="bg-red">
+                <v-btn
+                  class="bg-red"
+                  prepend-icon="mdi mdi-trash-can-outline"
+                  @click="removeUser(d.identity)"
+                >
                   Delete
                 </v-btn>
               </td>
@@ -67,7 +100,7 @@ const page = ref(1)
         </v-table>
         <v-pagination
           v-model="page"
-          :length="4"
+          :length="pageNum"
         />
       </v-card-text>
     </v-card>

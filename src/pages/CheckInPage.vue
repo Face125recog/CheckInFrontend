@@ -29,18 +29,41 @@
       style="align-self: center"
       title="确认签到"
     >
-      <v-card-text>
+      <v-card-text class="w-100 d-flex justify-center ma-2">
         <img
           ref="imageRef"
           alt="11"
+          class="me-4 rounded-sm"
           src=""
         >
+        <v-text-field
+          v-if="userInfo"
+          v-model="userInfo.name"
+          class="w-100"
+          hint="打卡人名称"
+          label="name"
+          readonly
+        />
+        <v-progress-circular
+          v-else
+          class="d-flex align-center justify-center"
+          indeterminate
+        />
       </v-card-text>
       <v-card-actions>
-        <v-btn>Check In Confirm</v-btn>
+        <v-btn @click="snackbar=true;showCheckIn=false">
+          Check In Confirm
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
+  <v-snackbar
+    v-if="userInfo"
+    v-model="snackbar"
+    close-delay="3000"
+  >
+    员工 {{ userInfo.name }} 签到成功
+  </v-snackbar>
 </template>
 
 <script lang="ts" setup>
@@ -49,23 +72,32 @@ import FaceDect from "../components/FaceDect.vue";
 import {FrontFaceDetectService} from "../service/impls/frontfaceDetect.ts";
 import {onMounted, ref} from "vue";
 import {AbcFaceDetect} from "../service/abcFaceDetect.ts";
+import {UserInfo} from "../api/callApi/checkIn.ts";
+
+defineProps<{ requireAuthorize: () => Promise<string> }>()
 
 const detectService = ref<AbcFaceDetect | null>()
 const modelReady = ref(false)
 const imageRef = ref()
 const showCheckIn = ref(false)
+const userInfo = ref<UserInfo | null>()
+const snackbar = ref(false)
 const onDetectFace = (face: Blob) => {
   const url = URL.createObjectURL(face)
   showCheckIn.value = true
   console.log(url)
-  setTimeout(() => {
 
-    imageRef.value.src = url
-  }, 500)
+
+  if (detectService.value) {
+    detectService.value?.faceMatch(face, 0.1).then((user) => {
+      userInfo.value = user
+      imageRef.value.src = url
+    })
+  }
 }
 
 onMounted(() => {
-  FrontFaceDetectService.getDetector().then((detector) => {
+  FrontFaceDetectService.getInstance().then((detector) => {
     detectService.value = detector
     modelReady.value = true
   })
