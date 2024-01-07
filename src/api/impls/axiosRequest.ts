@@ -3,6 +3,7 @@ import {AbcHttpClient, Payload, SendPayload} from "../abcHttpClient.ts"
 
 const BASE_URL = "http://127.0.0.1:4523/m1/3863270-0-default"
 
+
 export class AxiosRequest extends AbcHttpClient {
     instance: AxiosInstance
 
@@ -12,6 +13,10 @@ export class AxiosRequest extends AbcHttpClient {
             baseURL: BASE_URL,
             timeout: 1500,
         })
+    }
+
+    public static getInstance() {
+        return AXIOS_INSTANCE
     }
 
     async send<T>({contentType, authorize, payload, query, method, path}: SendPayload): Promise<Payload<T>> {
@@ -39,3 +44,5 @@ export class AxiosRequest extends AbcHttpClient {
         }
     }
 }
+
+const AXIOS_INSTANCE = new AxiosRequest()
