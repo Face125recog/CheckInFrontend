@@ -12,6 +12,7 @@ export class AxiosRequest extends AbcHttpClient {
         this.instance = axios.create({
             baseURL: BASE_URL,
             timeout: 1500,
+            withCredentials: true
         })
     }
 
