@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {useRouter} from "vue-router";
 import AdminLogin from "./AdminLogin.vue";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import "../api/callApi/admin.ts"
 import {Authorize} from "../authorize.ts";
 
@@ -13,11 +13,12 @@ const property = defineProps<{
 }>()
 const router = useRouter()
 
-const onSwitchTraget = ({id}) => {
+const onSwitchTarget = ({id}: { id: string }) => {
   router.push(id)
 }
 
-const logined = ref<(token: string) => void | null>()
+
+const isOnline = ref<(token: string) => void | null>()
 defineExpose({
   getAuthorize: async (): Promise<string> => {
     if (authorizeToken.value) {
@@ -25,7 +26,7 @@ defineExpose({
     } else {
       showLogin.value = true
       let promise = new Promise<string>((resolve) => {
-        logined.value = resolve
+        isOnline.value = resolve
       })
       return await promise;
 
@@ -36,13 +37,20 @@ defineExpose({
 const handleAuthorize = async (login: { name: string, password: string }) => {
   Authorize.getAuthorizeToken(async () => login)
       .then((token) => {
-        if (logined.value)
-          logined.value(token)
+        if (isOnline.value)
+          isOnline.value(token)
         authorizeToken.value = token
         console.log(token)
         showLogin.value = false
       })
 }
+
+onMounted(() => {
+  const token = Authorize.init()
+  if (token) {
+    authorizeToken.value = token
+  }
+})
 
 </script>
 
@@ -82,7 +90,7 @@ const handleAuthorize = async (login: { name: string, password: string }) => {
       class="text-left"
       item-title="name"
       item-value="path"
-      @click:select="onSwitchTraget"
+      @click:select="onSwitchTarget"
     />
   </v-navigation-drawer>
 </template>

@@ -20,8 +20,15 @@ export class Authorize {
         }
     }
 
-    public static authorized() {
-        return (this.authorizeToken !== null)
+    public static init() {
+        if (this.authorizeToken) {
+            return this.authorizeToken
+        } else {
+            const item = localStorage.getItem(key)
+            if (item)
+                this.authorizeToken = item
+            return item
+        }
     }
 
 }
