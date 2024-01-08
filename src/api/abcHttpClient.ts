@@ -11,12 +11,16 @@ export interface Payload<T> {
     errty?: string
 }
 
-export abstract class HttpRequest {
+export interface SendPayload {
+    method: Method,
+    path: string,
+    contentType: ContentType,
+    query?: Record<string, string>,
+    payload?: Blob | object,
+    authorize?: string
+}
+
+export abstract class AbcHttpClient {
     abstract send<T>(
-        method: Method,
-        path: string,
-        contentType: ContentType,
-        query?: Record<string, string>,
-        payload?: Blob | object,
-        authorize?: string): Promise<Payload<T>>;
+        payload: SendPayload): Promise<Payload<T>>;
 }

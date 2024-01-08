@@ -1,50 +1,62 @@
 import {AbcFaceDetect, FaceLocal, FaceOwner, FaceRegister, Size} from "../abcFaceDetect.ts";
+import {blobToBase64} from "../../imageProcess/fetchFromElement.ts";
+import {addingFace} from "../../api/callApi/addingFaceApi.ts";
+import {userCheckIn} from "../../api/callApi/checkIn.ts";
+import {AbcHttpClient} from "../../api/abcHttpClient.ts";
 import {FrontFaceDetect} from "../../imageProcess/faceDetect.ts";
 import {AxiosRequest} from "../../api/impls/axiosRequest.ts";
-import {blobToBase64} from "../../imageProcess/fetchFromElement.ts";
 
 export class FrontFaceDetectService extends AbcFaceDetect {
+    private static instance?: FrontFaceDetectService
     recommendSize?: Size = undefined
     faceDetector: FrontFaceDetect = new FrontFaceDetect()
-    requestClient: AxiosRequest = new AxiosRequest()
+    requestClient: AbcHttpClient
+
+    private constructor(client: AbcHttpClient) {
+        super();
+        this.requestClient = client
+    }
+
+    public static async getInstance(client: AbcHttpClient = AxiosRequest.getInstance()) {
+        if (FrontFaceDetectService.instance)
+            return FrontFaceDetectService.instance
+        else {
+            FrontFaceDetectService.instance = new FrontFaceDetectService(client)
+            await FrontFaceDetectService.instance.init()
+            return FrontFaceDetectService.instance
+        }
+    }
 
     async init() {
         await this.faceDetector.init()
     }
 
-    async addingFace<T>(register: FaceRegister<T>, context: T, times: number, authorize: string): Promise<void> {
-        // 1. fetch a context from backend, to keep state
-        const contextResp = await this.requestClient
-            .send<string>("POST", "/user/face/context", "text/plain", undefined, undefined, authorize)
-        const contextToken = contextResp.data;
+    async addingFace<T>(register: FaceRegister<T>, context: T, times: number, authorize: string, owner: FaceOwner): Promise<void> {
+        const faceList: string[] = []
 
         for (let i = 0; i < times; i++) {
+            console.log(`collect face ${i + 1} / ${times}`)
             //2. 进行 times 次带人脸的采集
             const face = await register.nextFace(this, context)
             const base64Face = await blobToBase64(face)
 
-            await this.requestClient.send("POST", "/user/face/upload", "application/json", {
-                "face-context": contextToken
-            }, {
-                face: base64Face
-            }, authorize)
+            faceList.push(base64Face)
         }
+
+        await addingFace(this.requestClient, {faces: faceList, user: owner}, authorize)
     }
 
     async faceMatch(inputImg: Blob, miniConfidence: number): Promise<FaceOwner> {
         // 转换为base64
         const base64Face = await blobToBase64(inputImg)
-        const ownerPayload = await this.requestClient.send<FaceOwner>("POST", "/detect/match", "application/json", undefined, {
-            face: base64Face, mini_confidence: miniConfidence
-        })
-        return ownerPayload.data
+        return await userCheckIn(this.requestClient, {face: base64Face, min_confidence: miniConfidence})
     }
 
-    async faceDetect(inputImg: HTMLCanvasElement, miniSize?: Size): Promise<FaceLocal> {
-        const face = await this.faceDetector.detectFace(inputImg, inputImg.getContext("2d"))
+    async faceDetect(inputImg: HTMLCanvasElement, miniSize?: Size): Promise<FaceLocal | null> {
+        const face = await this.faceDetector.detectFace(inputImg)
         if (!face) return null
 
-        if (miniSize && face.width < miniSize?.height || face.height < miniSize?.height) {
+        if (miniSize && (face.width < miniSize?.height || face.height < miniSize?.height)) {
             return null
         }
         return {

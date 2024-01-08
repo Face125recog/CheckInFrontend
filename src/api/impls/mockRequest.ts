@@ -1,15 +1,8 @@
-import { ContentType, HttpRequest, Method, Payload } from "../httpRequest";
+import {AbcHttpClient, Payload, SendPayload} from "../abcHttpClient.ts";
 
-export class MockRequest extends HttpRequest {
+export class MockRequest extends AbcHttpClient {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    send<T>(_method: Method, path: string, _contentType: ContentType): Promise<Payload<T>> {
-        const resp = this.responseList[path][this.respIdx[path]]
-        this.respIdx[path] += 1;
 
-        return new Promise((res) => { res({ data: resp as T }) })
-
-
-    }
     responseList: Record<string, object[]>;
     respIdx: Record<string, number> = {};
 
@@ -20,5 +13,16 @@ export class MockRequest extends HttpRequest {
         for (const key in resposeList) {
             this.respIdx[key] = 0
         }
+    }
+
+    send<T>({path}: SendPayload): Promise<Payload<T>> {
+        const resp = this.responseList[path][this.respIdx[path]]
+        this.respIdx[path] += 1;
+
+        return new Promise((res) => {
+            res({data: resp as T})
+        })
+
+
     }
 }

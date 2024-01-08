@@ -8,12 +8,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@jamescoyle/vue-icon": "^0.1.2",
+    "@mdi/font": "^7.4.47",
+    "@mdi/js": "^7.4.47",
     "@typescript-eslint/parser": "^6.16.0",
     "@vladmandic/face-api": "^1.7.12",
     "axios": "^1.6.4",
     "vite-plugin-vuetify": "^2.0.1",
     "vue": "^3.3.11",
-    "vuetify": "^3.4.8"
+    "vue-router": "4",
+    "vuetify": "^3.4.8",
+    "webfontloader": "^1.6.28"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.16.0",
