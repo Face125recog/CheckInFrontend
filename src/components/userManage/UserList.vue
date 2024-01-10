@@ -3,6 +3,7 @@
 import {computed, onMounted, ref, watch} from "vue";
 import RecordFace from "./RecordFace.vue";
 import {AbcUserManager} from "../../service/abcUserManager.ts";
+import {useDisplay} from "vuetify";
 
 const props = defineProps<{ manager: AbcUserManager, requireAuthorize: () => Promise<string> }>()
 
@@ -10,7 +11,7 @@ const data = ref<{ name: string, identity: number }[]>([])
 const pageNum = ref()
 const pageSize = 8
 const page = ref(1)
-
+const {smAndDown} = useDisplay()
 const ready = computed(() => {
   return data.value.length > 0 && pageNum.value != 0
 })
@@ -44,8 +45,9 @@ onMounted(() => {
 <template>
   <v-container class="d-flex justify-center align-center">
     <v-card
+      :class="smAndDown?'w-100':'w-75'"
       :loading="!ready"
-      class="w-75 pa-3"
+      class="pa-3"
     >
       <v-card-title>
         <record-face
@@ -89,11 +91,9 @@ onMounted(() => {
               <td>
                 <v-btn
                   class="bg-red"
-                  prepend-icon="mdi mdi-trash-can-outline"
+                  icon="mdi mdi-trash-can-outline"
                   @click="removeUser(d.identity)"
-                >
-                  Delete
-                </v-btn>
+                />
               </td>
             </tr>
           </tbody>

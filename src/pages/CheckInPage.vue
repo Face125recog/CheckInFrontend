@@ -25,7 +25,8 @@
     location="center"
   >
     <v-card
-      class="w-25 d-flex align-center "
+      :class="dialogWidth"
+      class="d-flex align-center"
       style="align-self: center"
       title="确认签到"
     >
@@ -70,12 +71,14 @@
 
 import FaceDect from "../components/FaceDect.vue";
 import {FrontFaceDetectService} from "../service/impls/frontfaceDetect.ts";
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {AbcFaceDetect} from "../service/abcFaceDetect.ts";
 import {UserInfo} from "../api/callApi/checkIn.ts";
+import {useDisplay} from "vuetify";
+import {getWidthClass} from "../utils.ts";
 
 defineProps<{ requireAuthorize: () => Promise<string> }>()
-
+const displayInfo = useDisplay()
 const detectService = ref<AbcFaceDetect | null>()
 const modelReady = ref(false)
 const imageRef = ref()
@@ -95,6 +98,8 @@ const onDetectFace = (face: Blob) => {
     })
   }
 }
+
+const dialogWidth = computed(() => getWidthClass(displayInfo))
 
 onMounted(() => {
   FrontFaceDetectService.getInstance().then((detector) => {

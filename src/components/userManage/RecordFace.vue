@@ -5,6 +5,8 @@ import {FrontFaceDetectService} from "../../service/impls/frontfaceDetect.ts";
 import {computed, onMounted, ref} from "vue";
 import {VStepper} from "vuetify/components";
 import {AbcFaceDetect} from "../../service/abcFaceDetect.ts";
+import {useDisplay} from "vuetify";
+import {getWidthClass} from "../../utils.ts";
 
 const {requireAuthorize} = defineProps<{ requireAuthorize: () => Promise<string> }>()
 
@@ -73,8 +75,10 @@ const onPickFace = (face: Blob) => {
   pickedFace.value = face
   faceImg.value.src = URL.createObjectURL(face)
 }
-
-
+const display = useDisplay()
+const width = computed(() => {
+  return getWidthClass(display)
+})
 </script>
 
 <template>
@@ -91,8 +95,9 @@ const onPickFace = (face: Blob) => {
     </template>
 
     <v-card
+      :class="width"
       :loading="onCollect"
-      class="w-33 d-flex justify-center ma-2"
+      class="d-flex justify-center ma-2"
       style="align-self: center"
     >
       <v-card-text class="pa-2">

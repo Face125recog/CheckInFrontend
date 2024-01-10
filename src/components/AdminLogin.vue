@@ -1,11 +1,13 @@
 <script lang="ts" setup>
 import {computed, ref} from "vue";
 import {AdminLogin} from "../api/callApi/admin.ts";
+import {useDisplay} from "vuetify";
+import {getWidthClass} from "../utils.ts";
 
 const property = defineProps<
     { fetchLoginInfo: (login: AdminLogin) => Promise<void>, modelValue: boolean }
 >()
-
+const displayInfo = useDisplay()
 const userName = ref("")
 const userPwd = ref("")
 const waitingLogin = ref(false)
@@ -23,13 +25,15 @@ const adminLogin = () => {
   })
 }
 
+const dialogWidth = computed(() => getWidthClass(displayInfo))
+
 </script>
 
 <template>
   <v-dialog
     v-model="showDialog"
+    :class="dialogWidth"
     :model-value="property.modelValue"
-    class="w-33"
     transition="dialog-top-transition"
   >
     <template #activator="{props}">
