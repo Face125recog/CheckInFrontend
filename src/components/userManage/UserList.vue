@@ -4,6 +4,7 @@ import {computed, onMounted, ref, watch} from "vue";
 import RecordFace from "./RecordFace.vue";
 import {AbcUserManager} from "../../service/abcUserManager.ts";
 import {useDisplay} from "vuetify";
+import DeleteConfirm from "./deleteConfirm.vue";
 
 const props = defineProps<{ manager: AbcUserManager, requireAuthorize: () => Promise<string> }>()
 
@@ -89,11 +90,19 @@ onMounted(() => {
               <td>{{ d.name }}</td>
               <td>{{ d.identity }}</td>
               <td>
-                <v-btn
-                  class="bg-red"
-                  icon="mdi mdi-trash-can-outline"
-                  @click="removeUser(d.identity)"
-                />
+                <delete-confirm
+                  :id="d.identity"
+                  :deleting="async()=>{await removeUser(d.identity)}"
+                  :user="d.name"
+                >
+                  <template #activator="{args}">
+                    <v-btn
+                      class="bg-red"
+                      icon="mdi mdi-trash-can-outline"
+                      v-bind="args"
+                    />
+                  </template>
+                </delete-confirm>
               </td>
             </tr>
           </tbody>
