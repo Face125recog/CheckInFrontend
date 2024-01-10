@@ -1,9 +1,9 @@
 import axios, {AxiosHeaders, AxiosInstance} from "axios"
 import {AbcHttpClient, Payload, SendPayload} from "../abcHttpClient.ts"
 
-const BASE_URL = "http://192.168.1.118:5000"
+// const BASE_URL = "http://192.168.1.118:5000"
 
-// const BASE_URL = "http://127.0.0.1:4523/m1/3863270-0-default"
+const BASE_URL = "http://127.0.0.1:4523/m1/3863270-0-default"
 
 
 export class AxiosRequest extends AbcHttpClient {
