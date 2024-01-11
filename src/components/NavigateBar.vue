@@ -1,13 +1,16 @@
 <script lang="ts" setup>
 import {useRouter} from "vue-router";
 import AdminLogin from "./AdminLogin.vue";
-import {onMounted, ref} from "vue";
+import {computed, ref} from "vue";
 import "../api/callApi/admin.ts"
 import {Authorize} from "../authorize.ts";
 
+const coast = ref("")
+const showCoast = computed(() => coast.value.length > 0)
 const drawer = ref(false)
 const showLogin = ref(false)
-const authorizeToken = ref<string>("")
+const authorizeToken = Authorize.init()
+const authorizeState = computed(() => authorizeToken.value != null)
 const property = defineProps<{
   pages: { name: string, path: string }[],
 }>()
@@ -35,22 +38,30 @@ defineExpose({
 })
 
 const handleAuthorize = async (login: { name: string, password: string }) => {
-  Authorize.getAuthorizeToken(async () => login)
+  await Authorize.getAuthorizeToken(async () => login)
       .then((token) => {
         if (isOnline.value)
           isOnline.value(token)
         authorizeToken.value = token
         console.log(token)
         showLogin.value = false
+        coast.value = "Admin login success"
+        setTimeout(() => {
+          coast.value = ""
+        }, 3000)
       })
 }
-
-onMounted(() => {
-  const token = Authorize.init()
-  if (token) {
-    authorizeToken.value = token
+const handleLogState = () => {
+  if (authorizeState.value) {
+    Authorize.removeAuthorize()
+    coast.value = "Admin logout success"
+    setTimeout(() => {
+      coast.value = ""
+    }, 3000)
+  } else {
+    showLogin.value = true
   }
-})
+}
 
 </script>
 
@@ -68,13 +79,15 @@ onMounted(() => {
     <template #append>
       <admin-login
         v-model="showLogin"
+        :close="()=>{router.push('/');showLogin = false}"
         :fetch-login-info="handleAuthorize"
       >
         <template #activator="{props}">
           <v-btn
-            icon="mdi mdi-login-variant"
+            :prepend-icon="authorizeState? `mdi mdi-account-circle`:`mdi mdi-login-variant`"
+            :text="authorizeState?`管理登出`:`管理登录`"
             v-bind="props"
-            @click="showLogin=true"
+            @click="handleLogState"
           />
         </template>
       </admin-login>
@@ -93,6 +106,13 @@ onMounted(() => {
       @click:select="onSwitchTarget"
     />
   </v-navigation-drawer>
+  <v-snackbar
+    v-if="showCoast"
+    v-model="showCoast"
+    close-delay="1000"
+  >
+    {{ coast }}
+  </v-snackbar>
 </template>
 
 <style scoped>

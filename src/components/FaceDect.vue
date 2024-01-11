@@ -10,14 +10,24 @@ const props = defineProps<{
 }>()
 
 const activate = async () => {
+
   if (tmpCan.value && video.value) {
-    let ctx = tmpCan.value.getContext("2d");
+    const canvas = tmpCan.value;
+    const videoValue = video.value;
+    const drawing = new Promise((resolve, reject) => {
+      let ctx = canvas.getContext("2d");
+      if (!ctx) {
+        reject("浏览器不支持Canvas")
+        return
+      }
+      tmpCan.value!.width = props.width
+      tmpCan.value!.height = props.height
 
-    tmpCan.value!.width = props.width
-    tmpCan.value!.height = props.height
+      ctx.drawImage(videoValue, 0, 0)
+      resolve(null)
 
-    ctx.drawImage(video.value, 0, 0)
-
+    })
+    await drawing;
     const face = await props.faceDetect.faceDetect(tmpCan.value)
     if (face) {
       const cropFace = await crop(tmpCan.value, {

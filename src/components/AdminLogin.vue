@@ -5,19 +5,26 @@ import {useDisplay} from "vuetify";
 import {getWidthClass} from "../utils.ts";
 
 const property = defineProps<
-    { fetchLoginInfo: (login: AdminLogin) => Promise<void>, modelValue: boolean }
+    { fetchLoginInfo: (login: AdminLogin) => Promise<void>, modelValue: boolean, close: () => void }
 >()
 const displayInfo = useDisplay()
 const userName = ref("")
 const userPwd = ref("")
 const waitingLogin = ref(false)
 const showDialog = ref(property.modelValue)
+const errMsg = ref("")
 const loginAble = computed(() => {
   return userName.value.length != 0 && userPwd.value.length != 0
 })
 const adminLogin = () => {
   waitingLogin.value = true;
-  property.fetchLoginInfo({name: userName.value, password: userPwd.value}).then(() => {
+  property.fetchLoginInfo({name: userName.value, password: userPwd.value}).catch((err) => {
+    console.log(err)
+    errMsg.value = err.toString()
+    setTimeout(() => {
+      errMsg.value = ""
+    }, 5000)
+  }).then(() => {
     userPwd.value = ""
     userName.value = ""
     showDialog.value = false
@@ -42,12 +49,19 @@ const dialogWidth = computed(() => getWidthClass(displayInfo))
         name="activator"
       />
     </template>
-    <template #default="{isActive }">
+    <template #default="{isActive}">
       <v-card
         :loading="waitingLogin"
         title="Admin Login"
       >
         <v-card-text>
+          <v-alert
+            v-if="errMsg"
+            :text="errMsg"
+            class="mb-3"
+            title="LoginFailure"
+            type="error"
+          />
           <v-text-field
             v-model="userName"
             label="Admin Name"
@@ -66,11 +80,17 @@ const dialogWidth = computed(() => getWidthClass(displayInfo))
         <v-card-actions>
           <v-btn
             :disabled="!loginAble"
+            color="green"
             @click="adminLogin"
+            @keyup.enter="adminLogin"
           >
             Login
           </v-btn>
-          <v-btn @click="showDialog=false">
+          <v-btn
+            v-model="isActive.value"
+            color="red"
+            @click="property.close()"
+          >
             Cancel
           </v-btn>
         </v-card-actions>
