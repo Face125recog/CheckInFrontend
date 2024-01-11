@@ -11,8 +11,16 @@
       <template #detect-activator="{activate}">
         <v-btn
           :disabled="!modelReady"
-          @click="activate()"
+          @click="onCheckIn(activate)"
         >
+          <template
+            v-if="findingFace"
+            #prepend
+          >
+            <v-progress-circular
+              indeterminate
+            />
+          </template>
           Check
         </v-btn>
       </template>
@@ -85,9 +93,16 @@ const imageRef = ref()
 const showCheckIn = ref(false)
 const userInfo = ref<UserInfo | null>()
 const snackbar = ref(false)
+const findingFace = ref(false)
+const onCheckIn = (activator: () => Promise<void>) => {
+  activator()
+  findingFace.value = true
+
+}
 const onDetectFace = (face: Blob) => {
   const url = URL.createObjectURL(face)
   showCheckIn.value = true
+  findingFace.value = false
   console.log(url)
 
 
