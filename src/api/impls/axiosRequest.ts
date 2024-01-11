@@ -1,4 +1,4 @@
-import axios, {AxiosHeaders, AxiosInstance} from "axios"
+import axios, {AxiosHeaders, AxiosInstance, AxiosResponse} from "axios"
 import {AbcHttpClient, Payload, SendPayload} from "../abcHttpClient.ts"
 
 // const BASE_URL = "http://192.168.1.118:5000"
@@ -37,14 +37,11 @@ export class AxiosRequest extends AbcHttpClient {
             data: payload,
             headers: headers
         }).catch((err) => {
-            throw new Error(`Axios Request Error: ${err}`)
+            const errResp: AxiosResponse<Payload<T>> = err.response
+            throw new Error(`Request Failure: [${errResp.data.errty}]: ${errResp.data.errmsg}`)
         });
 
-        if (resp.status < 300) {
-            return resp.data
-        } else {
-            throw new Error(`Request Failure: ${resp.status} ${resp.statusText} | ${resp.data.errty} ${resp.data.errmsg}`)
-        }
+        return resp.data
     }
 }
 

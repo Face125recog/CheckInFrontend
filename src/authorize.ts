@@ -1,33 +1,43 @@
 import {AdminLogin, adminLogin, AuthorizeToken} from "./api/callApi/admin.ts";
 import {AbcHttpClient} from "./api/abcHttpClient.ts";
 import {AxiosRequest} from "./api/impls/axiosRequest.ts";
+import {ref} from "vue";
 
 const key = "AuthorizeToken";
 
 export class Authorize {
-    static authorizeToken?: AuthorizeToken
+    static authorizeToken = ref<AuthorizeToken | null>(null)
 
     public static async getAuthorizeToken(onNeedLogin: () => Promise<AdminLogin>, client: AbcHttpClient = AxiosRequest.getInstance()) {
-        if (this.authorizeToken) {
-            return this.authorizeToken
+        if (Authorize.authorizeToken.value) {
+            return Authorize.authorizeToken.value
         } else if (localStorage.getItem(key)) {
-            this.authorizeToken = localStorage.getItem(key)!
-            return this.authorizeToken
+            Authorize.authorizeToken.value = localStorage.getItem(key)!
+            return Authorize.authorizeToken.value
         } else {
-            this.authorizeToken = await adminLogin(client, await onNeedLogin())
-            localStorage.setItem(key, this.authorizeToken)
-            return this.authorizeToken
+            Authorize.authorizeToken.value = await adminLogin(client, await onNeedLogin())
+            localStorage.setItem(key, Authorize.authorizeToken.value)
+            return Authorize.authorizeToken.value
         }
     }
 
+    public static authorized(): boolean {
+        return (Authorize.authorizeToken.value == null)
+    }
+
+    public static removeAuthorize() {
+        localStorage.removeItem(key)
+        Authorize.authorizeToken.value = null
+    }
+
     public static init() {
-        if (this.authorizeToken) {
-            return this.authorizeToken
+        if (Authorize.authorizeToken.value) {
+            return Authorize.authorizeToken
         } else {
             const item = localStorage.getItem(key)
             if (item)
-                this.authorizeToken = item
-            return item
+                Authorize.authorizeToken.value = item
+            return Authorize.authorizeToken
         }
     }
 

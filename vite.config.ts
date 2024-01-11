@@ -7,5 +7,5 @@ export default defineConfig({
     plugins: [vue(), vuetify({
         autoImport: true
     })],
-    server: {host: "192.168.1.201"}
+    server: {host: "0.0.0.0"}
 })
