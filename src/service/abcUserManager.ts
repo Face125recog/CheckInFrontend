@@ -1,3 +1,4 @@
+import {AuthorizeToken} from "../api/callApi/admin.ts";
 
 export interface User {
     name: string,
@@ -5,7 +6,9 @@ export interface User {
 }
 
 export abstract class AbcUserManager {
-    abstract allUser(): Promise<User[]>
-    abstract removeUser(identity: number): Promise<void>
-    abstract addUser(user: User): Promise<void>
+    abstract userNumber(authorize: AuthorizeToken): Promise<number>
+
+    abstract allUser(authorize: AuthorizeToken, pageSize: number, page: number): Promise<User[]>
+
+    abstract removeUser(identity: number, authorize: AuthorizeToken): Promise<void>
 }

@@ -33,10 +33,13 @@ export interface FaceRegister<T> {
 export abstract class AbcFaceDetect {
     abstract recommendSize?: Size
 
+    async init(): Promise<void> {
+    }
+
     abstract faceDetect(inputImg: HTMLCanvasElement, miniSize?: Size): Promise<FaceLocal | null>
 
     abstract faceMatch(inputImg: Blob, miniConfidence: number): Promise<FaceOwner>
 
-    abstract addingFace<T>(register: FaceRegister<T>, context: T, times: number, authorize: string): Promise<void>
+    abstract addingFace<T>(register: FaceRegister<T>, context: T, times: number, authorize: string, user: FaceOwner): Promise<void>
 
 }
