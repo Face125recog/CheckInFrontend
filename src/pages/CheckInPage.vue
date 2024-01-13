@@ -60,7 +60,10 @@
         />
       </v-card-text>
       <v-card-actions>
-        <v-btn @click="snackbar=true;showCheckIn=false">
+        <v-btn
+          :disabled="!userInfo"
+          @click="snackbar=true;showCheckIn=false"
+        >
           Check In Confirm
         </v-btn>
       </v-card-actions>
@@ -84,6 +87,7 @@ import {AbcFaceDetect} from "../service/abcFaceDetect.ts";
 import {UserInfo} from "../api/callApi/checkIn.ts";
 import {useDisplay} from "vuetify";
 import {getWidthClass} from "../utils.ts";
+import { watch } from "vue";
 
 defineProps<{ requireAuthorize: () => Promise<string> }>()
 const displayInfo = useDisplay()
@@ -94,6 +98,14 @@ const showCheckIn = ref(false)
 const userInfo = ref<UserInfo | null>()
 const snackbar = ref(false)
 const findingFace = ref(false)
+const setFaceActivator = ref<()=>void|null>()
+
+watch(imageRef,()=>{
+  if(setFaceActivator.value){
+    setFaceActivator.value()
+  }
+})
+
 const onCheckIn = (activator: () => Promise<void>) => {
   activator()
   findingFace.value = true
@@ -105,11 +117,15 @@ const onDetectFace = (face: Blob) => {
   findingFace.value = false
   console.log(url)
 
+  new Promise<void>((reslove)=>{setFaceActivator.value=reslove})
+  .then(()=>{
+    imageRef.value.src = url
+  })
+
 
   if (detectService.value) {
     detectService.value?.faceMatch(face, 0.1).then((user) => {
       userInfo.value = user
-      imageRef.value.src = url
     })
   }
 }
