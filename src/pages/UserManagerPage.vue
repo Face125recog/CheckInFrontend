@@ -1,6 +1,6 @@
 <template>
   <user-list
-    :manager="FrontUserManager.getInstance()"
+    :manager="FrontUserManagerService.getInstance()"
     :require-authorize="requireAuthorize"
   />
   <!--  <check-in-history />-->
@@ -9,7 +9,7 @@
 <script lang="ts" setup>
 
 import UserList from "../components/userManage/UserList.vue";
-import {FrontUserManager} from "../service/impls/frontUserManager.ts";
+import {FrontUserManagerService} from "../service/impls/frontUserManagerService.ts";
 
 const {requireAuthorize} = defineProps<{ requireAuthorize: () => Promise<string> }>()
 </script>

@@ -35,10 +35,12 @@ const displayWidth = computed(() => getWidthClass(display))
       style="align-self: center"
     >
       <template #title>
-        Confirm To Delete
+        删除员工确认
       </template>
       <template #text>
-        Ready To remove User [{{ user }}] ID: {{ id }} ?
+        确实要移除员工？<p>
+          姓名： [{{ user }}] ID: {{ id }} ?
+        </p>
       </template>
       <template
         #actions
@@ -47,7 +49,7 @@ const displayWidth = computed(() => getWidthClass(display))
           prepend-icon="mdi mdi-check"
           @click="doDelete"
         >
-          {{ onDelete ? "Preform Delete" : "Delete" }}
+          {{ onDelete ? "删除中" : "删除" }}
         </v-btn>
         <v-btn
           color="red"

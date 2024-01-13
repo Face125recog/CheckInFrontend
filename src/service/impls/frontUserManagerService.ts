@@ -7,8 +7,8 @@ import {fetchUserInfoList} from "../../api/callApi/userManager/fetchUserInfoList
 import {userCount} from "../../api/callApi/userManager/userCount.ts";
 
 
-export class FrontUserManager extends AbcUserManager {
-    static INSTANCE?: FrontUserManager = undefined
+export class FrontUserManagerService extends AbcUserManager {
+    static INSTANCE?: FrontUserManagerService = undefined
 
     client: AbcHttpClient
 
@@ -19,11 +19,11 @@ export class FrontUserManager extends AbcUserManager {
     }
 
     public static getInstance(client: AbcHttpClient = AxiosRequest.getInstance()): AbcUserManager {
-        if (FrontUserManager.INSTANCE) {
-            return FrontUserManager.INSTANCE
+        if (FrontUserManagerService.INSTANCE) {
+            return FrontUserManagerService.INSTANCE
         } else {
-            FrontUserManager.INSTANCE = new FrontUserManager(client)
-            return FrontUserManager.INSTANCE
+            FrontUserManagerService.INSTANCE = new FrontUserManagerService(client)
+            return FrontUserManagerService.INSTANCE
         }
     }
 
