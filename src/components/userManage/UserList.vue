@@ -52,6 +52,7 @@ onMounted(() => {
     >
       <v-card-title>
         <record-face
+          :after-recorded="() => {return loadUser()}"
           :collect-num="250"
           :require-authorize="requireAuthorize"
           class=""

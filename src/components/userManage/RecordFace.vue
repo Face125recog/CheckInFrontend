@@ -8,7 +8,11 @@ import {AbcFaceDetect} from "../../service/abcFaceDetect.ts";
 import {useDisplay} from "vuetify";
 import {getWidthClass} from "../../utils.ts";
 
-const {requireAuthorize, collectNum} = defineProps<{ requireAuthorize: () => Promise<string>, collectNum: number }>()
+const {requireAuthorize, collectNum, afterRecorded} = defineProps<{
+  requireAuthorize: () => Promise<string>,
+  collectNum: number,
+  afterRecorded: () => Promise<void>
+}>()
 type State = "None" | "Collecting" | "Done" | "Failure"
 const showDialog = ref(false)
 const modelReady = ref(false)
@@ -29,7 +33,19 @@ const userInfoFilled = computed(() => userName.value.length > 0 && userId.value 
 const onCollect = computed(() => {
   return collectState.value == "Collecting" && remainTimes.value > 0
 })
-
+const btnMsg = computed(() => {
+  if (collectState.value == "Collecting") {
+    if (remainTimes.value > 0) {
+      return `采集中 ${remainTimes.value}/${collectNum}`
+    } else {
+      return `人脸录入中`
+    }
+  } else if (collectState.value == "None") {
+    return "开始采集"
+  } else if (collectState.value == "Failure" || collectState.value == "Done") {
+    return "完成"
+  } else return "--"
+})
 const pickedFace = ref<Blob | null>(null)
 
 const faceImg = ref()
@@ -167,22 +183,25 @@ const width = computed(() => {
               <template #detect-activator="{activate}">
                 <v-btn
                   v-if="collectState=='None' || collectState=='Collecting'"
-                  :disabled="!modelReady"
+                  :disabled="!modelReady || collectState=='Collecting'"
                   variant="elevated"
                   @click="collectState='Collecting';activateFaceDetect(activate)"
                 >
                   <template
-                    v-if="onCollect"
+                    v-if="collectState=='Collecting'"
                     #prepend
                   >
-                    <v-progress-circular v-model="collectProgress" />
+                    <v-progress-circular
+                      v-model="collectProgress"
+                      :indeterminate="collectState=='Collecting' && remainTimes<=0"
+                    />
                   </template>
-                  {{ onCollect ? `采集中 ${remainTimes >= 0 ? remainTimes : 0}/${collectNum}` : '开始采集' }}
+                  {{ btnMsg }}
                 </v-btn>
                 <v-btn
                   v-else
                   variant="elevated"
-                  @click="showDialog = false"
+                  @click="showDialog = false;afterRecorded()"
                 >
                   Done
                 </v-btn>
