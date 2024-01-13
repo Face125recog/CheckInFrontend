@@ -2,27 +2,32 @@
 
 import FaceDect from "../FaceDect.vue";
 import {FrontFaceDetectService} from "../../service/impls/frontfaceDetect.ts";
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {VStepper} from "vuetify/components";
 import {AbcFaceDetect} from "../../service/abcFaceDetect.ts";
 import {useDisplay} from "vuetify";
 import {getWidthClass} from "../../utils.ts";
 
-const {requireAuthorize} = defineProps<{ requireAuthorize: () => Promise<string> }>()
-
+const {requireAuthorize, collectNum} = defineProps<{ requireAuthorize: () => Promise<string>, collectNum: number }>()
+type State = "None" | "Collecting" | "Done" | "Failure"
 const showDialog = ref(false)
-const faceDetect = ref<AbcFaceDetect | null>()
 const modelReady = ref(false)
-const remainTimes = ref(200)
-const startCollecting = ref(false)
+const faceDetect = ref<AbcFaceDetect | null>()
+const remainTimes = ref(collectNum)
 const registerStep = ref<VStepper | null>()
 const userName = ref("")
 const userId = ref<number>(0)
-const collectDone = ref(false)
+const collectState = ref<State>("None")
 
+const collectProgress = ref(0)
+
+watch(remainTimes, () => {
+  collectProgress.value = Math.round((collectNum - remainTimes.value) * (100 / collectNum))
+  console.log(collectProgress.value)
+})
 const userInfoFilled = computed(() => userName.value.length > 0 && userId.value > 0)
 const onCollect = computed(() => {
-  return startCollecting.value && remainTimes.value > 0
+  return collectState.value == "Collecting" && remainTimes.value > 0
 })
 
 const pickedFace = ref<Blob | null>(null)
@@ -34,19 +39,30 @@ onMounted(() => {
     modelReady.value = true
   })
 })
+watch(showDialog, (value) => {
+  if (!value) {
+
+    userName.value = ""
+    userId.value = 0
+    collectState.value = "None"
+    remainTimes.value = collectNum
+  }
+})
 const activateFaceDetect = (activate: () => void) => {
   if (faceDetect.value) {
-    requireAuthorize().then((token) => {
-
-      faceDetect.value?.addingFace({
+    const collectFace = async () => {
+      const auth = await requireAuthorize()
+      await faceDetect.value?.addingFace({
         nextFace: async (_, context) => {
           context()
           return await getFace(context)
         }
-      }, activate, 200, token, {name: userName.value, identity: userId.value})
-          .finally(() => {
-            collectDone.value = true
-          })
+      }, activate, collectNum, auth, {name: userName.value, identity: userId.value})
+    }
+    collectFace().then(() => {
+      collectState.value = "Done"
+    }).catch(() => {
+      collectState.value = "Failure"
     })
   }
 }
@@ -96,11 +112,16 @@ const width = computed(() => {
 
     <v-card
       :class="width"
-      :loading="onCollect"
+      :loading="collectState=='Collecting'"
       class="d-flex justify-center ma-2"
       style="align-self: center"
     >
       <v-card-text class="pa-2">
+        <v-alert
+          v-if="collectState=='Failure'"
+          text="录入失败，请尝试重新录入"
+          type="error"
+        />
         <v-stepper
           ref="registerStep"
           :items="[`登记信息`,`录入人脸`]"
@@ -145,11 +166,18 @@ const width = computed(() => {
             >
               <template #detect-activator="{activate}">
                 <v-btn
-                  v-if="!collectDone"
+                  v-if="collectState=='None' || collectState=='Collecting'"
+                  :disabled="!modelReady"
                   variant="elevated"
-                  @click="startCollecting=true;activateFaceDetect(activate)"
+                  @click="collectState='Collecting';activateFaceDetect(activate)"
                 >
-                  {{ onCollect ? `采集中 ${remainTimes + 1}/200` : '开始采集' }}
+                  <template
+                    v-if="onCollect"
+                    #prepend
+                  >
+                    <v-progress-circular v-model="collectProgress" />
+                  </template>
+                  {{ onCollect ? `采集中 ${remainTimes >= 0 ? remainTimes : 0}/${collectNum}` : '开始采集' }}
                 </v-btn>
                 <v-btn
                   v-else
