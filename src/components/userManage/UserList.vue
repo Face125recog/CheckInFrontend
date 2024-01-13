@@ -21,7 +21,7 @@ const loadUser = async () => {
 }
 
 const removeUser = async (id: number) => {
-  props.manager.removeUser(id, await props.requireAuthorize())
+  await props.manager.removeUser(id, await props.requireAuthorize())
       .then(() => {
         loadUser()
       })
@@ -52,6 +52,8 @@ onMounted(() => {
     >
       <v-card-title>
         <record-face
+          :after-recorded="() => {return loadUser()}"
+          :collect-num="250"
           :require-authorize="requireAuthorize"
           class=""
         >

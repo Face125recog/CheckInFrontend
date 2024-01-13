@@ -23,7 +23,6 @@ export class FrontFaceDetect {
 
     async detectFace(input: HTMLCanvasElement, context?: CanvasRenderingContext2D): Promise<Area | null> {
         const face = await detectSingleFace(input, new TinyFaceDetectorOptions())
-        console.log(face);
 
         if (face) {
             if (context) {
