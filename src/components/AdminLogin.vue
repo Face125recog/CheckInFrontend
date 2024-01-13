@@ -59,7 +59,7 @@ const dialogWidth = computed(() => getWidthClass(displayInfo))
             v-if="errMsg"
             :text="errMsg"
             class="mb-3"
-            title="LoginFailure"
+            title="登录失败"
             type="error"
           />
           <v-text-field
